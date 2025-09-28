@@ -1,0 +1,31 @@
+/* app/views/styles/utilities.css */
+@layer utilities {
+  /* .font-lusitana {
+    font-family: var(--font-lusitana);
+  } */
+
+  .btn-primary {
+    background-color: var(--accent-1);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background-color: hsla(208, 84%, 40%, 0.9);
+  }
+
+  .btn-secondary {
+    background-color: var(--accent-3);
+    color: var(--white);
+  }
+
+  .btn-success {
+    @apply bg-green-600 hover:bg-green-700;
+    color: var(--white);
+  }
+
+  .btn-secondary:hover {
+    @apply transition-colors duration-200;
+    background-color: var(--accent-2);
+    color: var(--white);
+  }
+}

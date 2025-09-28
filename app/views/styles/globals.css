@@ -1,0 +1,8 @@
+/* app/views/styles/globals.css */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@import "./base.css";
+@import "./utilities.css";
