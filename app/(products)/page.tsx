@@ -72,7 +72,8 @@ export default function ProductsPage() {
   };
 
   return (
-    <main className="container mx-auto py-8">
+    <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Desserts</h1>
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto">
           {productsData.map((product: Product) => (
@@ -86,7 +87,7 @@ export default function ProductsPage() {
             />
           ))}
         </div>
-        <div className="lg:fixed lg:right-0 lg:top-0 lg:h-screen lg:w-1/3 lg:pr-8">
+        <div className="lg:fixed lg:right-0 lg:top-0 lg:h-screen lg:w-1/3 lg:pt-8 lg:pb-8 lg:pr-8">
           <Cart
             cartItems={cartItems}
             onRemove={handleRemove}
