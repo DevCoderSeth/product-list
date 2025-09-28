@@ -1,101 +1,102 @@
 // app/(products)/page.tsx
-"use client"
+
+"use client";
 
 import { useState } from "react";
-import Cart from "../views/product/Cart";
 import ProductCard from "../views/product/ProductCard";
+import Cart from "../views/product/Cart";
+import OrderCard from "../views/product/OrderCard";
+import productsData from "../data/data.json";
 
-// Define the CartItem interface for TypeScript
-interface CartItem {
+interface Product {
+  image: {
+    thumbnail: string;
+    mobile: string;
+    tablet: string;
+    desktop: string;
+  };
   name: string;
+  category: string;
   price: number;
-  quantity: number;
-  category?: string; // Optional, since mockProducts has category
 }
 
-const mockProducts = [
-  {
-    image: {
-      thumbnail: "/image-waffle-thumbnail.jpg",
-      mobile: "/image-waffle-mobile.jpg",
-      tablet: "/image-waffle-tablet.jpg",
-      desktop: "/image-waffle-desktop.jpg",
-    },
-    name: "Waffle with Berries",
-    category: "Waffle",
-    price: 6.5,
-  },
-  {
-    image: {
-      thumbnail: "/image-creme-brulee-thumbnail.jpg",
-      mobile: "/image-creme-brulee-mobile.jpg",
-      tablet: "/image-creme-brulee-tablet.jpg",
-      desktop: "/image-creme-brulee-desktop.jpg",
-    },
-    name: "Vanilla Bean Crème Brûlée",
-    category: "Crème Brûlée",
-    price: 7.0,
-  },
-];
+interface CartItem extends Product {
+  quantity: number;
+}
 
-export default function Home() {
+export default function ProductsPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [showOrderCard, setShowOrderCard] = useState(false);
 
-  // Handler to add or increment an item
-  const handleAddOrIncrement = (product: CartItem) => {
+  const handleAdd = (product: Product) => {
     setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.name === product.name);
-      if (existingItem) {
-        return prev.map((item) =>
-          item.name === product.name
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [...prev, { ...product, quantity: 1 }];
-      }
+      const existing = prev.find((item) => item.name === product.name);
+      if (existing) return prev; // Already added, use increment
+      return [...prev, { ...product, quantity: 1 }];
     });
   };
 
-  // Handler to decrement (or remove if quantity hits 0)
-  const handleDecrement = (product: CartItem) => {
-    setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.name === product.name);
-      if (!existingItem) return prev;
+  const handleIncrement = (product: Product) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.name === product.name
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    );
+  };
 
-      if (existingItem.quantity === 1) {
-        return prev.filter((item) => item.name !== product.name);
-      } else {
-        return prev.map((item) =>
+  const handleDecrement = (product: Product) => {
+    setCartItems((prev) =>
+      prev
+        .map((item) =>
           item.name === product.name
             ? { ...item, quantity: item.quantity - 1 }
             : item
-        );
-      }
-    });
+        )
+        .filter((item) => item.quantity > 0)
+    );
   };
 
-  // Handler to remove an item entirely
-  const handleRemove = (productName: string) => {
-    setCartItems((prev) => prev.filter((item) => item.name !== productName));
+  const handleRemove = (name: string) => {
+    setCartItems((prev) => prev.filter((item) => item.name !== name));
+  };
+
+  const handleConfirm = () => {
+    setShowOrderCard(true);
+  };
+
+  const handleCloseOrder = () => {
+    setShowOrderCard(false);
+    setCartItems([]); // Clear cart after confirm
   };
 
   return (
-    <main className="mx-auto my-16 space-y-4 max-w-6xl ">
-      <div className="grid lg:flex gap-4">
-        <div className="grid lg:flex gap-4">
-          {mockProducts.map((product, index) => (
+    <main className="container mx-auto py-8">
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto">
+          {productsData.map((product: Product) => (
             <ProductCard
-              key={index}
+              key={product.name}
               product={product}
-              onAddOrIncrement={handleAddOrIncrement}
-              onDecrement={handleDecrement}
               cartItems={cartItems}
+              onAdd={handleAdd}
+              onIncrement={handleIncrement}
+              onDecrement={handleDecrement}
             />
           ))}
         </div>
-        <Cart cartItems={cartItems} onRemove={handleRemove} />
+        <div className="lg:fixed lg:right-0 lg:top-0 lg:h-screen lg:w-1/3 lg:pr-8">
+          <Cart
+            cartItems={cartItems}
+            onRemove={handleRemove}
+            onConfirm={handleConfirm}
+          />
+        </div>
       </div>
+      {showOrderCard && (
+        <OrderCard cartItems={cartItems} onClose={handleCloseOrder} />
+      )}
     </main>
   );
 }

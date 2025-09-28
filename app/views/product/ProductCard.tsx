@@ -1,65 +1,63 @@
-import React from "react";
-import ProductButton from "./ProductButton";
-import { Product } from "@/app/types/product";
+// app/views/product/ProductCard.tsx
 
-// Define props interface for TypeScript
+import ProductButton from "./ProductButton";
+
+interface Product {
+  image: { thumbnail: string; mobile: string; tablet: string; desktop: string };
+  name: string;
+  category: string;
+  price: number;
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
+
 interface ProductCardProps {
   product: Product;
   cartItems: CartItem[];
-  onAddOrIncrement: (product: Product) => void;
+  onAdd: (product: Product) => void;
+  onIncrement: (product: Product) => void;
   onDecrement: (product: Product) => void;
 }
 
-interface CartItem {
-  name: string;
-  price: number;
-  quantity: number;
-  category?: string;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({
+export default function ProductCard({
   product,
   cartItems,
-  onAddOrIncrement,
+  onAdd,
+  onIncrement,
   onDecrement,
-}) => {
-  if (!product) return null; // Optional: skip rendering if no data yet
-
-  const { image, name, category, price } = product;
-
-  // Calculate quantity for this product
-  const quantity = cartItems.find((item) => item.name === name)?.quantity || 0;
+}: ProductCardProps) {
+  const quantity =
+    cartItems.find((item) => item.name === product.name)?.quantity || 0;
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-md overflow-hidden flex gap-4 flex-col">
-      <picture className="w-full">
-        <source media="(min-width: 1024px)" srcSet={image.desktop} />
-        <source media="(min-width: 768px)" srcSet={image.tablet} />
-        <source media="(max-width: 767px)" srcSet={image.mobile} />
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <picture>
+        <source media="(min-width: 1024px)" srcSet={product.image.desktop} />
+        <source media="(min-width: 640px)" srcSet={product.image.tablet} />
+        <source media="(max-width: 639px)" srcSet={product.image.mobile} />
         <img
-          src={image.thumbnail}
-          alt={name}
-          className="w-full h-auto rounded-md"
+          src={product.image.thumbnail}
+          alt={product.name}
+          className="w-full h-48 object-cover"
         />
       </picture>
-
-      <div className="-mt-9 flex items-center justify-center">
-        <ProductButton
-          quantity={quantity}
-          onAddOrIncrement={() => onAddOrIncrement(product)} // Pass product to handler
-          onDecrement={() => onDecrement(product)}
-        />
-      </div>
-
-      <div className="p-2">
-        <p className="text-sm text-gray-500">{category}</p>
-        <h2 className="text-lg font-semibold text-gray-800">{name}</h2>
-        <p className="text-md font-bold text-gray-900 mt-1">
-          ${price.toFixed(2)}
+      <div className="p-4">
+        <p className="text-sm text-gray-500">{product.category}</p>
+        <h2 className="text-lg font-semibold text-gray-800">{product.name}</h2>
+        <p className="text-md font-bold text-rose-600">
+          ${product.price.toFixed(2)}
         </p>
+        <div className="mt-4 flex justify-center">
+          <ProductButton
+            quantity={quantity}
+            onAdd={() => onAdd(product)}
+            onIncrement={() => onIncrement(product)}
+            onDecrement={() => onDecrement(product)}
+          />
+        </div>
       </div>
     </div>
   );
-};
-
-export default ProductCard;
+}

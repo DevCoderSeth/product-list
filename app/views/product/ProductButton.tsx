@@ -2,38 +2,55 @@
 
 "use client";
 
-import { Plus, Minus, ShoppingCart } from "lucide-react";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
 import Btn from "../Btn";
 
-// Define props interface for TypeScript
 interface ProductButtonProps {
   quantity: number;
-  onAddOrIncrement: () => void;
+  onAdd: () => void;
+  onIncrement: () => void;
   onDecrement: () => void;
 }
 
 export default function ProductButton({
   quantity,
-  onAddOrIncrement,
+  onAdd,
+  onIncrement,
   onDecrement,
 }: ProductButtonProps) {
   return (
-    <>
+    <div className="flex items-center justify-center gap-3">
       {quantity === 0 ? (
-        <Btn iconLeft={<ShoppingCart />} onClick={onAddOrIncrement}>
+        <Btn
+          iconLeft={<ShoppingCart className="w-5 h-5" />}
+          onClick={onAdd}
+          theme="btn-outline"
+          rounded="full"
+          className="w-40"
+        >
           Add to Cart
         </Btn>
       ) : (
-        <div className="flex items-center gap-2">
-          <Btn onClick={onDecrement} rounded="md" variant="secondary">
-            <Minus />
+        <>
+          <Btn
+            onClick={onDecrement}
+            rounded="full"
+            theme="btn-secondary"
+            className="p-2"
+          >
+            <Minus className="w-4 h-4" />
           </Btn>
-          <Btn>{quantity}</Btn>
-          <Btn onClick={onAddOrIncrement} rounded="md" variant="secondary">
-            <Plus />
+          <Btn cursorOnHover="false">{quantity}</Btn>
+          <Btn
+            onClick={onIncrement}
+            rounded="full"
+            theme="btn-secondary"
+            className="p-2"
+          >
+            <Plus className="w-4 h-4" />
           </Btn>
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 }

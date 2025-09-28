@@ -32,6 +32,7 @@ interface BtnProps
   theme?: "btn-primary" | "btn-secondary" | "btn-success" | "btn-outline";
   count?: number;
   asChild?: boolean;
+  cursorOnHover?: string;
 }
 
 const Btn = ({
@@ -47,6 +48,7 @@ const Btn = ({
   iconLeft,
   iconRight,
   asChild = false,
+  cursorOnHover = "true",
   ...props
 }: BtnProps) => {
   const roundedClass =
@@ -64,6 +66,15 @@ const Btn = ({
       : textSize === "xl"
       ? "text-xl"
       : "text-base";
+
+  const cursorClass =
+    cursorOnHover === "true"
+      ? "cursor-pointer"
+      : cursorOnHover === "false"
+      ? "cursor-auto"
+      : cursorOnHover
+      ? `cursor-${cursorOnHover}`
+      : "cursor-pointer";
 
   // Render logic for iconLeft and iconRight
   const renderIcon = (iconProp: IconProp, position: "left" | "right") => {
@@ -100,6 +111,7 @@ const Btn = ({
         roundedClass,
         textSizeClass,
         theme && theme,
+        cursorClass,
         className
       )}
       {...props}
