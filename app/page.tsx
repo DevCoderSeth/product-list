@@ -1,12 +1,12 @@
-// app/(products)/page.tsx
+// app/page.tsx
 
 "use client";
 
 import { useState } from "react";
-import ProductCard from "../views/product/ProductCard";
-import Cart from "../views/product/Cart";
-import OrderCard from "../views/product/OrderCard";
-import productsData from "../data/data.json";
+import ProductCard from "./views/product/ProductCard";
+import Cart from "./views/product/Cart";
+import OrderCard from "./views/product/OrderCard";
+import productsData from "./data/data.json";
 
 interface Product {
   image: {
