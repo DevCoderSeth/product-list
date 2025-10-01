@@ -1,172 +1,168 @@
 import { db } from "@/app/models/client";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { roles } from "../../tables/roles";
 import { permissions } from "../../tables/permissions";
 import { rolePermissions } from "../../tables/role_permissions";
 import { admins } from "../../tables/admins";
 
-async function seed() {
-  console.log("Starting database seeding...");
+async function seedSystemAdmin() {
+  console.log("🌱 Starting System Admin seeding...");
 
-  // 1. Create Roles
-  console.log("Creating roles...");
-  await db
-    .insert(roles)
-    .values([
-      {
+  try {
+    // ============================================
+    // STEP 1: Create System Admin Role
+    // ============================================
+    console.log("📋 Creating system admin role...");
+
+    await db
+      .insert(roles)
+      .values({
         name: "system_admin",
-        description: "System-level access - User & role management only",
-      },
-      {
-        name: "super_admin",
-        description: "Business owner - Full business operations access",
-      },
-      {
-        name: "operator_admin",
-        description: "Staff/Employee - Limited business operations",
-      },
-    ])
-    .onDuplicateKeyUpdate({ set: { name: roles.name } });
+        description:
+          "Dev/Platform team - System & user management + read-only analytics",
+      })
+      .onDuplicateKeyUpdate({
+        set: {
+          description: sql`VALUES(description)`,
+        },
+      });
 
-  // Get the system_admin role ID
-  const [systemRole] = await db
-    .select()
-    .from(roles)
-    .where(eq(roles.name, "system_admin"))
-    .limit(1);
+    const [systemRole] = await db
+      .select()
+      .from(roles)
+      .where(eq(roles.name, "system_admin"))
+      .limit(1);
 
-  console.log(`System admin role created with ID: ${systemRole.id}`);
+    console.log(`✅ System admin role ID: ${systemRole.id}`);
 
-  // 2. Create Permissions - Separated by category
-  console.log("Creating permissions...");
-  await db
-    .insert(permissions)
-    .values([
-      // === SYSTEM ADMINISTRATION (for system_admin) ===
+    // ============================================
+    // STEP 2: Create System-Level Permissions
+    // ============================================
+    console.log("🔐 Creating system-level permissions...");
+
+    const systemPermissions = [
       {
         name: "manage_admins",
         description: "Create, update, delete admin accounts",
       },
-      { name: "manage_roles", description: "Create and assign roles" },
+      {
+        name: "manage_roles",
+        description: "Create and modify roles",
+      },
       {
         name: "manage_permissions",
         description: "Assign permissions to roles",
       },
-      { name: "system_settings", description: "Modify system configuration" },
-
-      // === BUSINESS OPERATIONS (for super_admin/operator_admin) ===
-      // User Management
       {
-        name: "manage_customers",
-        description: "View and manage customer accounts",
+        name: "system_settings",
+        description: "Modify system-wide configuration",
       },
-
-      // Product Management
       {
-        name: "manage_products",
-        description: "Create, update, delete products",
+        name: "view_analytics",
+        description: "View business performance metrics (read-only)",
       },
-      { name: "view_products", description: "View product catalog" },
-
-      // Inventory Management
       {
-        name: "manage_inventory",
-        description: "Manage stock levels and batches",
+        name: "view_reports",
+        description: "Access system reports and dashboards (read-only)",
       },
-      { name: "view_inventory", description: "View inventory levels" },
+    ];
 
-      // Order Management
-      { name: "manage_orders", description: "Process and manage orders" },
-      { name: "view_orders", description: "View orders" },
-      { name: "verify_orders", description: "Verify and approve orders" },
+    await db
+      .insert(permissions)
+      .values(systemPermissions)
+      .onDuplicateKeyUpdate({
+        set: {
+          description: sql`VALUES(description)`,
+        },
+      });
 
-      // Financial
-      { name: "manage_payments", description: "Process payments and refunds" },
-      { name: "view_payments", description: "View payment records" },
+    console.log(`✅ Created ${systemPermissions.length} system permissions`);
 
-      // Operations
-      {
-        name: "manage_shipments",
-        description: "Manage shipments and deliveries",
-      },
-      { name: "manage_field_teams", description: "Manage field teams" },
-      { name: "manage_locations", description: "Manage store locations" },
+    // ============================================
+    // STEP 3: Assign Permissions to System Admin
+    // ============================================
+    console.log("🔗 Assigning permissions to system admin...");
 
-      // Analytics
-      { name: "view_analytics", description: "Access analytics and reports" },
-    ])
-    .onDuplicateKeyUpdate({ set: { name: permissions.name } });
+    const allPermissions = await db.select().from(permissions);
+    const systemPermNames = systemPermissions.map((p) => p.name);
+    const systemPerms = allPermissions.filter((p) =>
+      systemPermNames.includes(p.name)
+    );
 
-  // 3. Assign ONLY system administration permissions to system_admin
-  console.log("Assigning permissions to system admin role...");
+    await db
+      .delete(rolePermissions)
+      .where(eq(rolePermissions.roleId, systemRole.id));
 
-  const systemPermissionNames = [
-    "manage_admins",
-    "manage_roles",
-    "manage_permissions",
-    "system_settings",
-  ];
+    await db.insert(rolePermissions).values(
+      systemPerms.map((permission) => ({
+        roleId: systemRole.id,
+        permissionId: permission.id,
+      }))
+    );
 
-  const systemPermissions = await db
-    .select()
-    .from(permissions)
-    .where(eq(permissions.name, systemPermissionNames[0])); // This is a workaround
+    console.log(
+      `✅ Assigned ${systemPerms.length} permissions to system admin`
+    );
 
-  // Better approach: get all system permissions
-  const allPermissions = await db.select().from(permissions);
-  const systemPerms = allPermissions.filter((p) =>
-    systemPermissionNames.includes(p.name)
-  );
+    // ============================================
+    // STEP 4: Create System Admin Account
+    // ============================================
+    console.log("👤 Creating system admin account...");
 
-  await db.insert(rolePermissions).values(
-    systemPerms.map((permission) => ({
-      roleId: systemRole.id,
-      permissionId: permission.id,
-    }))
-  );
+    const SYSTEM_ADMIN_EMAIL = "admin@system.local";
+    const SYSTEM_ADMIN_PASSWORD = "System@2025!";
 
-  console.log(
-    `Assigned ${systemPerms.length} system permissions to system admin`
-  );
+    const [existingAdmin] = await db
+      .select()
+      .from(admins)
+      .where(eq(admins.email, SYSTEM_ADMIN_EMAIL))
+      .limit(1);
 
-  // 4. Create the system admin account
-  console.log("Creating system admin account...");
+    if (existingAdmin) {
+      console.log("⚠️  System admin already exists. Skipping creation.");
+      console.log(`   Email: ${SYSTEM_ADMIN_EMAIL}`);
+    } else {
+      await db.insert(admins).values({
+        firstName: "System",
+        lastName: "Administrator",
+        email: SYSTEM_ADMIN_EMAIL,
+        password: SYSTEM_ADMIN_PASSWORD, // TODO: Hash in production!
+        roleId: systemRole.id,
+      });
 
-  const [existingAdmin] = await db
-    .select()
-    .from(admins)
-    .where(eq(admins.email, "admin@system.local"))
-    .limit(1);
+      console.log("✅ System admin created successfully!");
+      console.log("\n" + "=".repeat(60));
+      console.log("🔑 SYSTEM ADMIN CREDENTIALS");
+      console.log("=".repeat(60));
+      console.log(`Email:    ${SYSTEM_ADMIN_EMAIL}`);
+      console.log(`Password: ${SYSTEM_ADMIN_PASSWORD}`);
+      console.log("=".repeat(60));
+      console.log("\n📌 CAPABILITIES:");
+      console.log("   ✓ Manage admin accounts");
+      console.log("   ✓ Manage roles & permissions");
+      console.log("   ✓ View analytics & reports (read-only)");
+      console.log("   ✓ System configuration");
+      console.log("\n🎯 NEXT STEPS:");
+      console.log("   1. Login with system admin credentials");
+      console.log("   2. Create business roles and permissions");
+      console.log("   3. Create super_admin for business operations");
+      console.log("=".repeat(60) + "\n");
+    }
 
-  if (existingAdmin) {
-    console.log("System admin already exists. Skipping creation.");
-  } else {
-    await db.insert(admins).values({
-      firstName: "System",
-      lastName: "Administrator",
-      email: "admin@system.local",
-      password: "system@2025",
-      roleId: systemRole.id,
-    });
-
-    console.log("System admin created successfully!");
-    console.log("-----------------------------------");
-    console.log("System Admin Credentials:");
-    console.log("Email: admin@system.local");
-    console.log("Password: system@2025");
-    console.log("-----------------------------------");
-    console.log("Permissions: User & Role Management ONLY");
-    console.log("Next Step: Login and create your first super_admin");
+    console.log("✅ System admin seeding completed!");
+    return true;
+  } catch (error) {
+    console.error("❌ Error during seeding:", error);
+    throw error;
   }
-
-  console.log("Database seeding completed successfully!");
 }
 
-seed()
-  .catch((error) => {
-    console.error("Error during seeding:", error);
-    process.exit(1);
-  })
-  .finally(() => {
+seedSystemAdmin()
+  .then(() => {
+    console.log("🎉 Seeding finished!");
     process.exit(0);
+  })
+  .catch((error) => {
+    console.error("💥 Seeding failed:", error);
+    process.exit(1);
   });
