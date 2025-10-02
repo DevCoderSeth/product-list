@@ -1,3 +1,4 @@
+// app/views/Toast.tsx
 import { toast } from "sonner";
 import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 

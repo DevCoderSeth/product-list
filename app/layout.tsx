@@ -2,6 +2,7 @@
 
 import type { Metadata } from "next";
 import "./views/styles/globals.css";
+import { Toaster } from "./views/components/sonner";
 import { inter } from "./views/Fonts";
 
 export const metadata: Metadata = {
@@ -17,7 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className}  antialiased`}>{children}</body>
+      <body className={`${inter.className}  antialiased`}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

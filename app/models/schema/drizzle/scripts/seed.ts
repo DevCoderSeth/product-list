@@ -1,9 +1,11 @@
+// app/models/schema/drizzle/scripts/seed.ts
 import { db } from "@/app/models/client";
 import { eq, sql } from "drizzle-orm";
 import { roles } from "../../tables/roles";
 import { permissions } from "../../tables/permissions";
 import { rolePermissions } from "../../tables/role_permissions";
 import { admins } from "../../tables/admins";
+import { hashPassword } from "@/app/lib/auth";
 
 async function seedSystemAdmin() {
   console.log("🌱 Starting System Admin seeding...");
@@ -109,7 +111,7 @@ async function seedSystemAdmin() {
     // ============================================
     console.log("👤 Creating system admin account...");
 
-    const SYSTEM_ADMIN_EMAIL = "admin@system.local";
+    const SYSTEM_ADMIN_EMAIL = "netuganda.devs@gmail.com";
     const SYSTEM_ADMIN_PASSWORD = "System@2025!";
 
     const [existingAdmin] = await db
@@ -122,11 +124,12 @@ async function seedSystemAdmin() {
       console.log("⚠️  System admin already exists. Skipping creation.");
       console.log(`   Email: ${SYSTEM_ADMIN_EMAIL}`);
     } else {
+      const hashedPassword = await hashPassword(SYSTEM_ADMIN_PASSWORD);
       await db.insert(admins).values({
         firstName: "System",
         lastName: "Administrator",
         email: SYSTEM_ADMIN_EMAIL,
-        password: SYSTEM_ADMIN_PASSWORD, // TODO: Hash in production!
+        password: hashedPassword,
         roleId: systemRole.id,
       });
 
