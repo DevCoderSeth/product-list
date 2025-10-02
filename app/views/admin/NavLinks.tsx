@@ -275,8 +275,8 @@ export const navLinks: Record<
       icon: Settings,
       subLinks: [
         {
-          label: "General",
-          href: "/admin/settings/general",
+          label: "Integrations",
+          href: "/admin/settings/integrations",
           requiredPermission: "system_settings",
         },
         {

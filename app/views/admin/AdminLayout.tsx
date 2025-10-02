@@ -1,4 +1,4 @@
-// app/admin/AdminLayout.tsx
+// app/admin/views/AdminLayout.tsx
 "use client";
 import React, { useState } from "react";
 import type { Admin } from "@/app/models/interactions/admin";
@@ -7,6 +7,7 @@ import TopNav from "./TopNav";
 import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
 import DashboardFooter from "./AdminFooter";
+import SecondNav from "./SecondNav";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -74,6 +75,10 @@ const AdminLayout = ({
               <TopBar user={user} />
             </div>
           )}
+
+          {/* SecondNav: Shows sub-navigation for current section */}
+          <SecondNav serviceKey={serviceKey} />
+
           <div className="pl-4">{children}</div>
         </main>
       </div>

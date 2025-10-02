@@ -200,7 +200,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
   const skeletonRowCount = skeletonRows ?? table.getState().pagination.pageSize;
 
   return (
-    <div className="mx-auto max-w-[90vw] md:max-w-[85vw] lg:max-w-[94vw] space-y-4">
+    <div className="mx-auto max-w-[90vw] md:max-w-[85vw] lg:max-w-[77vw] space-y-4">
       {/* Filter and Add Button */}
       {showSearch && (
         <div className="flex items-center justify-between gap-3">
@@ -228,7 +228,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
       )}
 
       {/* Table Container */}
-      <div className="w-full overflow-hidden border border-gray-300 rounded-md bg-primary">
+      <div className="w-full overflow-hidden border border-gray-300 rounded-md bg-secondary/10">
         <div ref={scrollRef} className="overflow-x-auto">
           <table className="table-auto border-collapse w-full">
             <thead className="rounded-md bg-secondary">
@@ -317,13 +317,13 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                               className={`px-4 py-3 h-10 rounded
                               ${
                                 colIndex === 0
-                                  ? "sticky left-0 bg-primary z-10"
+                                  ? "sticky left-0 bg-secondary/10 z-10"
                                   : ""
                               }
                               ${
                                 colIndex === skeletonColumnCount - 1 &&
                                 showActions
-                                  ? "md:sticky md:right-0 bg-primary z-10"
+                                  ? "md:sticky md:right-0 bg-secondary/10 z-10"
                                   : ""
                               }
                             `}
@@ -352,7 +352,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                               ${isUserHidden ? "hidden md:table-cell" : ""}
                               ${
                                 isFirst
-                                  ? `sticky left-0 bg-primary z-10 transition-shadow ${
+                                  ? `sticky left-0 bg-secondary/10 z-10 transition-shadow ${
                                       hasScrolled
                                         ? "shadow-[inset_-4px_0_6px_-4px_rgba(0,0,0,0.15)]"
                                         : ""
@@ -361,7 +361,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                               }
                               ${
                                 colId === "actions"
-                                  ? `md:sticky md:right-0 bg-primary z-10 transition-shadow ${
+                                  ? `md:sticky md:right-0 bg-secondary/10 z-10 transition-shadow ${
                                       hasOverflowRight
                                         ? "md:shadow-[inset_4px_0_6px_-4px_rgba(0,0,0,0.15)]"
                                         : ""
