@@ -1,4 +1,3 @@
-// app/views/admin/SecondNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -7,9 +6,15 @@ import { navLinks } from "./NavLinks";
 
 interface SecondNavProps {
   serviceKey?: "admin";
+  isExpanded?: boolean; // Prop to receive sidebar state
+  navLocation?: "top" | "side"; // Prop to handle nav location
 }
 
-const SecondNav = ({ serviceKey = "admin" }: SecondNavProps) => {
+const SecondNav = ({
+  serviceKey = "admin",
+  isExpanded = true,
+  navLocation = "side",
+}: SecondNavProps) => {
   const pathname = usePathname();
   const allLinks = navLinks[serviceKey] || [];
 
@@ -28,7 +33,15 @@ const SecondNav = ({ serviceKey = "admin" }: SecondNavProps) => {
   }
 
   return (
-    <nav className="w-[78vw] rounded-md mx-auto bg-accent-1/3 dark:bg-gray-900 sticky top-0 z-30">
+    <nav
+      className={`rounded-md mx-auto  bg-accent-1/3 dark:bg-gray-900 sticky top-0 z-30 transition-all duration-300
+        ${
+          isExpanded
+            ? "md:max-w-[calc(100vw-16rem)]"
+            : "md:max-w-[calc(100vw-4rem)]"
+        }
+        ${navLocation === "top" ? "lg:max-w-full" : ""}`}
+    >
       <div className="flex items-center gap-1 px-4 py-2 flex-wrap">
         {activeMainLink.subLinks.map((subLink) => {
           const isActive =

@@ -1,3 +1,4 @@
+// app/api/system/admins.tsx
 import { NextResponse } from "next/server";
 import { db } from "@/app/models/client";
 import { admins, roles } from "@/app/models/schema";

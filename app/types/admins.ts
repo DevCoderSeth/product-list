@@ -20,3 +20,20 @@ export interface AdminDisplay {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface RoleDisplay {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Type definition for permissions display
+export interface PermissionDisplay {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: Date;
+  updated_at: Date;
+}

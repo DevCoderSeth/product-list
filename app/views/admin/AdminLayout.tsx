@@ -1,4 +1,3 @@
-// app/admin/views/AdminLayout.tsx
 "use client";
 import React, { useState } from "react";
 import type { Admin } from "@/app/models/interactions/admin";
@@ -8,6 +7,12 @@ import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
 import DashboardFooter from "./AdminFooter";
 import SecondNav from "./SecondNav";
+
+// Define a type for children components that may accept isExpanded and navLocation
+type ChildWithLayoutProps = {
+  isExpanded?: boolean;
+  navLocation?: "top" | "side";
+};
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -24,8 +29,6 @@ const AdminLayout = ({
 }: AdminLayoutProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const toggleSidebar = () => setIsExpanded((prev) => !prev);
-
-  console.log("AdminLayout received user:", user); // Debug log
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -77,9 +80,22 @@ const AdminLayout = ({
           )}
 
           {/* SecondNav: Shows sub-navigation for current section */}
-          <SecondNav serviceKey={serviceKey} />
+          <div className="mx-3">
+            <SecondNav
+              serviceKey={serviceKey}
+              isExpanded={isExpanded}
+              navLocation={navLocation}
+            />
+          </div>
 
-          <div className="pl-4">{children}</div>
+          {/* Children: Pass isExpanded and navLocation to children */}
+          <div className="mx-3">
+            {React.Children.map(children, (child) =>
+              React.isValidElement<ChildWithLayoutProps>(child)
+                ? React.cloneElement(child, { isExpanded, navLocation })
+                : child
+            )}
+          </div>
         </main>
       </div>
 

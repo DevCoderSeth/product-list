@@ -1,3 +1,4 @@
+// app/admin/system/admins.tsx
 "use client";
 
 import { adminColumns } from "@/app/configs/tables/admins";
@@ -25,7 +26,7 @@ const Admins = () => {
     const fetchAdmins = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/admins");
+        const response = await fetch("/api/system/admins");
         if (!response.ok) throw new Error("Failed to fetch admins");
         const data = await response.json();
         setAdmins(data);
@@ -50,7 +51,7 @@ const Admins = () => {
   };
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="mx-auto py-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Admins</h1>
         <p className="text-sm text-gray-600 mt-1">
@@ -64,6 +65,8 @@ const Admins = () => {
         loading={loading}
         showActions={true}
         showView={true}
+        skeletonRows={2}
+        addButtonLabel="Add Admin"
         showDelete={false}
         showSearch={true}
         showPagination={true}
